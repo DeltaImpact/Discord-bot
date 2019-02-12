@@ -22,13 +22,17 @@
 // Interactivity module.
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
+using DSPlus.Examples.ExtensionMethods;
+using Newtonsoft.Json;
 
 namespace DSPlus.Examples
 {
@@ -36,8 +40,10 @@ namespace DSPlus.Examples
     // since we set the defaults.
     public class ExampleInteractiveCommands
     {
+        /*
         [Command("poll"), Description("Run a poll with reactions.")]
-        public async Task Poll(CommandContext ctx, [Description("How long should the poll last.")] TimeSpan duration, [Description("What options should people have.")] params DiscordEmoji[] options)
+        public async Task Poll(CommandContext ctx, [Description("How long should the poll last.")] TimeSpan duration,
+            [Description("What options should people have.")] params DiscordEmoji[] options)
         {
             // first retrieve the interactivity module from the client
             var interactivity = ctx.Client.GetInteractivityModule();
@@ -81,7 +87,8 @@ namespace DSPlus.Examples
             await ctx.RespondAsync($"The first one to type the following code gets a reward: `{code}`");
 
             // wait for anyone who types it
-            var msg = await interactivity.WaitForMessageAsync(xm => xm.Content.Contains(code), TimeSpan.FromSeconds(60));
+            var msg = await interactivity.WaitForMessageAsync(xm => xm.Content.Contains(code),
+                TimeSpan.FromSeconds(60));
             if (msg != null)
             {
                 // announce the winner
@@ -154,11 +161,688 @@ namespace DSPlus.Examples
             var interactivity = ctx.Client.GetInteractivityModule();
 
             // generate pages.
-            var lipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vitae velit eget nunc iaculis laoreet vitae eu risus. Nullam sit amet cursus purus. Duis enim elit, malesuada consequat aliquam sit amet, interdum vel orci. Donec vehicula ut lacus consequat cursus. Aliquam pellentesque eleifend lectus vitae sollicitudin. Vestibulum sit amet risus rhoncus, hendrerit felis eget, tincidunt odio. Nulla sed urna ante. Mauris consectetur accumsan purus, ac dignissim ligula condimentum eu. Phasellus ullamcorper, arcu sed scelerisque tristique, ante elit tincidunt sapien, eu laoreet ipsum mauris eu justo. Curabitur mattis cursus urna, eu ornare lacus pulvinar in. Vivamus cursus gravida nunc. Sed dolor nisi, congue non hendrerit at, rutrum sed mi. Duis est metus, consectetur sed libero quis, dignissim gravida lacus. Mauris suscipit diam dolor, semper placerat justo sodales vel. Curabitur sed fringilla odio.\n\nMorbi pretium placerat nulla sit amet condimentum. Duis placerat, felis ornare vehicula auctor, augue odio consectetur eros, sit amet tristique dolor risus nec leo. Aenean vulputate ipsum sagittis augue malesuada, id viverra odio gravida. Curabitur aliquet elementum feugiat. Phasellus eu faucibus nibh, eget finibus nibh. Proin ac fermentum enim, non consequat orci. Nam quis elit vulputate, mollis eros ut, maximus lacus. Vivamus et lobortis odio. Suspendisse potenti. Fusce nec magna in eros tempor tincidunt non vel mi. Pellentesque auctor eros tellus, vel ultrices mi ultricies eu. Nam pharetra sed tortor id elementum. Donec sit amet mi eleifend, iaculis purus sit amet, interdum turpis.\n\nAliquam at consectetur lectus. Ut et ultrices augue. Etiam feugiat, tortor nec dictum pharetra, nulla mauris convallis magna, quis auctor libero ipsum vitae mi. Mauris posuere feugiat feugiat. Phasellus molestie purus sit amet ipsum sodales, eget pretium lorem pharetra. Quisque in porttitor quam, nec hendrerit ligula. Fusce tempus, diam ut malesuada semper, leo tortor vulputate erat, non porttitor nisi elit eget turpis. Nam vitae arcu felis. Aliquam molestie neque orci, vel consectetur velit mattis vel. Fusce eget tempus leo. Morbi sit amet bibendum mauris. Aliquam erat volutpat. Phasellus nunc lectus, vulputate vitae turpis vel, tristique vulputate nulla. Aenean sit amet augue at mauris laoreet convallis. Nam quis finibus dui, at lobortis lectus.\n\nSuspendisse potenti. Pellentesque massa enim, dapibus at tortor eu, posuere ultricies augue. Nunc condimentum enim id ex sagittis, ut dignissim neque tempor. Nulla cursus interdum turpis. Aenean auctor tempor justo, sed rhoncus lorem sollicitudin quis. Fusce non quam a ante suscipit laoreet eget at ligula. Aenean condimentum consectetur nunc, sit amet facilisis eros lacinia sit amet. Integer quis urna finibus, tristique justo ut, pretium lectus. Proin consectetur enim sed risus rutrum, eu vehicula augue pretium. Vivamus ultricies justo enim, id imperdiet lectus molestie at. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.\n\nNullam tincidunt dictum nibh, dignissim laoreet libero eleifend ut. Vestibulum eget maximus nulla. Suspendisse a auctor elit, ac facilisis tellus. Sed iaculis turpis ac purus tempor, ut pretium ante ultrices. Aenean commodo tempus vestibulum. Morbi vulputate pharetra molestie. Ut rhoncus quam felis, id mollis quam dapibus id. Curabitur faucibus id justo in ornare. Praesent facilisis dolor lorem, non vulputate velit finibus ut. Praesent vestibulum nunc ac nibh iaculis porttitor.\n\nFusce mattis leo sed ligula laoreet accumsan. Pellentesque tortor magna, ornare vitae tellus eget, mollis placerat est. Suspendisse potenti. Ut sit amet lacus sed nibh pulvinar mattis in bibendum dui. Mauris vitae turpis tempor, malesuada velit in, sodales lacus. Sed vehicula eros in magna condimentum vestibulum. Aenean semper finibus lectus, vel hendrerit lorem euismod a. Sed tempor ante quis magna sollicitudin, eu bibendum risus congue. Donec lectus sem, accumsan ut mollis et, accumsan sed lacus. Nam non dui non tellus pretium mattis. Mauris ultrices et felis ut imperdiet. Nam erat risus, consequat eu eros ac, convallis viverra sapien. Etiam maximus nunc et felis ultrices aliquam.\n\nUt tincidunt at magna at interdum. Sed fringilla in sem non lobortis. In dictum magna justo, nec lacinia eros porta at. Maecenas laoreet mattis vulputate. Sed efficitur tempor euismod. Integer volutpat a odio eu sagittis. Aliquam congue tristique nisi, quis aliquet nunc tristique vitae. Vivamus ac iaculis nunc, et faucibus diam. Donec vitae auctor ipsum, quis posuere est. Proin finibus, dolor ac euismod consequat, urna sem ultrices lectus, in iaculis sem nulla et odio. Integer et vulputate metus. Phasellus finibus et lorem eget lacinia. Maecenas velit est, luctus quis fermentum nec, fringilla eu lorem.\n\nPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris faucibus neque eu consectetur egestas. Mauris aliquet nibh pellentesque mollis facilisis. Duis egestas lectus sed justo sagittis ultrices. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Curabitur hendrerit quis arcu id dictum. Praesent in massa eget lectus pulvinar consectetur. Aliquam eget ipsum et velit congue porta vitae ut eros. Quisque convallis lacus et venenatis sagittis. Phasellus sit amet eros ac nibh facilisis laoreet vel eget nisi. In ante libero, volutpat in risus vel, tristique blandit leo. Morbi posuere bibendum libero, non efficitur mi sagittis vel. Cras viverra pulvinar pellentesque. Mauris auctor et lacus ut pellentesque. Nunc pretium luctus nisi eu convallis.\n\nSed nec ultricies arcu. Aliquam eu tincidunt diam, nec luctus ligula. Ut laoreet dignissim est, eu fermentum massa fermentum eget. Nullam non viverra justo, sed congue felis. Phasellus id convallis mauris. Aliquam elementum euismod ex, vitae dignissim nunc consectetur vitae. Donec ut odio quis ex placerat elementum sit amet eget lectus. Suspendisse potenti. Nam non massa id mi suscipit euismod. Nullam varius tincidunt diam congue congue. Proin pharetra vestibulum eros, vel imperdiet sem rutrum at. Cras eget gravida ligula, quis facilisis ex.\n\nEtiam consectetur elit mauris, euismod porta urna auctor a. Nulla facilisi. Praesent massa ipsum, iaculis non odio at, varius lobortis nisi. Aliquam viverra erat a dapibus porta. Pellentesque imperdiet maximus mattis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec luctus elit sit amet feugiat convallis. Phasellus varius, sem ut volutpat vestibulum, magna arcu porttitor libero, in dapibus metus dolor nec dolor. Fusce at eleifend magna. Mauris cursus pellentesque sagittis. Nullam nec laoreet ante, in sodales arcu.";
+            var lipsum = "123 " +
+                         "34";
             var lipsum_pages = interactivity.GeneratePagesInEmbeds(lipsum);
 
             // send the paginator
-            await interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, lipsum_pages, TimeSpan.FromMinutes(5), TimeoutBehaviour.Delete);
+            await interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, lipsum_pages, TimeSpan.FromMinutes(5),
+                TimeoutBehaviour.Delete);
+        }
+
+
+        [Command("pointTo"), Description("Point to person")]
+        public async Task PointTo(CommandContext ctx)
+        {
+            // first retrieve the interactivity module from the client
+            var interactivity = ctx.Client.GetInteractivityModule();
+
+            // specify the emoji
+            var emoji = DiscordEmoji.FromName(ctx.Client, ":x:");
+
+            // announce
+            await ctx.RespondAsync($"Поставь эмодзи {emoji} сообщению пользователя на которого хочешь указать.");
+
+            // wait for a reaction
+            var em = await interactivity.WaitForReactionAsync(xe => xe == emoji, ctx.User, TimeSpan.FromSeconds(60));
+            if (em != null)
+            {
+                // quote
+                var embed = new DiscordEmbedBuilder
+                {
+                    Color = em.Message.Author is DiscordMember m ? m.Color : new DiscordColor(0xFF00FF),
+                    //Description = em.Message.Content,
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = em.Message.Author is DiscordMember mx ? mx.DisplayName : em.Message.Author.Username,
+                        IconUrl = em.Message.Author.AvatarUrl
+                    }
+                };
+                await ctx.RespondAsync(embed: embed);
+            }
+            else
+            {
+                await ctx.RespondAsync("Не дождался.");
+            }
+        }
+
+
+
+        [Command("waitforreact1"), Description("Waits for a reaction.")]
+        public async Task WaitForReaction1(CommandContext ctx)
+        {
+            // first retrieve the interactivity module from the client
+            var interactivity = ctx.Client.GetInteractivityModule();
+
+            // specify the emoji
+            var emoji = DiscordEmoji.FromName(ctx.Client, ":point_up:");
+
+            // announce
+            await ctx.RespondAsync($"React with {emoji} to quote a message!");
+
+            // wait for a reaction
+            var em = await interactivity.WaitForReactionAsync(xe => xe == emoji, ctx.User, TimeSpan.FromSeconds(60));
+            if (em != null)
+            {
+                // quote
+                var embed = new DiscordEmbedBuilder
+                {
+                    Color = em.Message.Author is DiscordMember m ? m.Color : new DiscordColor(0xFF00FF),
+                    Description = em.Message.Content,
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = em.Message.Author is DiscordMember mx ? mx.DisplayName : em.Message.Author.Username,
+                        IconUrl = em.Message.Author.AvatarUrl
+                    }
+                };
+                await ctx.RespondAsync(embed: embed);
+            }
+            else
+            {
+                await ctx.RespondAsync("Seriously?");
+            }
+        }
+
+
+
+        [Command("paste"), Description("Example.")]
+        public async Task Paste(CommandContext ctx)
+        {
+            //Console.WriteLine("1");
+
+
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Color = ctx.Message.Author is DiscordMember m ? m.Color : new DiscordColor(0xFF00FF),
+                Description = "Все ссылки пока будут здесь.",
+                Author = new DiscordEmbedBuilder.EmbedAuthor
+                {
+                    Name = ctx.Message.Author is DiscordMember mx ? mx.DisplayName : ctx.Message.Author.Username,
+                    IconUrl = ctx.Message.Author.AvatarUrl
+                },
+
+            };
+            embed.AddField("Нужна игра? - Скачать можно по ссылкам:", " https://factorio.com/ ");
+            embed.AddField("Google Drive:", "  https://goo.gl/SJA1dE ");
+            embed.AddField("Mega:", "  https://goo.gl/U11ezu ");
+            //embed.AddField("Все ссылки пока будут здесь.", " ");
+
+            //await ctx.RespondAsync("embed: ");
+
+            Console.WriteLine("2");
+
+            //ctx.Message.del
+            await ctx.RespondAsync(embed: embed);
+
+
+
+        }
+
+
+        */
+
+
+        [Command("memes"), Description("Лист названий возможных мемов.")]
+        public async Task List(CommandContext ctx)
+        {
+            var embed = Memes.MemesEmbed();
+
+            await ctx.RespondAsync(embed: embed);
+
+
+            ////var pages = IEnumerable<Page>;
+            //List<Page> Pages = new List<Page>();
+
+            //// first retrieve the interactivity module from the client
+            //var interactivity = ctx.Client.GetInteractivityModule();
+
+            //foreach (var memeWFWikiCategory in Memes.MemeWfWikiDictionary.Keys)
+            //{
+            //    foreach (var memeWFWiki in Memes.MemeWfWikiDictionary[memeWFWikiCategory])
+            //    {
+            //        var embed = new DiscordEmbedBuilder
+            //        {
+            //            Title = memeWFWiki.Name,
+            //            Description = memeWFWikiCategory,
+            //            ImageUrl = memeWFWiki.Path,
+            //        };
+
+            //        var page = new Page();
+            //        page.Embed = embed;
+            //        Pages.Add(page);
+            //    }
+            //}
+
+            //// send the paginator
+
+            //await interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, Pages, TimeSpan.FromMinutes(5),
+            //    TimeoutBehaviour.Delete);
+        }
+
+        [Command("dictionary"), Description("Книга с мемами.")]
+        public async Task DictionaryOfMemes(CommandContext ctx)
+        {
+            //var pages = IEnumerable<Page>;
+            List<Page> Pages = new List<Page>();
+
+            // first retrieve the interactivity module from the client
+            var interactivity = ctx.Client.GetInteractivityModule();
+
+            foreach (var memeWFWikiCategory in Memes.MemeWfWikiDictionary.Keys)
+            {
+                foreach (var memeWFWiki in Memes.MemeWfWikiDictionary[memeWFWikiCategory])
+                {
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = memeWFWiki.Name,
+                        Description = memeWFWikiCategory,
+                        ImageUrl = memeWFWiki.Path,
+                    };
+
+                    var page = new Page();
+                    page.Embed = embed;
+                    Pages.Add(page);
+                }
+            }
+
+            // send the paginator
+
+            await interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, Pages, TimeSpan.FromMinutes(5),
+                TimeoutBehaviour.Delete);
+        }
+
+        [Command("reload"), Description("Перезагрузка списка мемов.")]
+        public async Task UpdateMemes(CommandContext ctx)
+        {
+            if (ctx.User.Id == 131456507018477568)
+            {
+                int categoriesBefore = Memes.CountOfCategories;
+                int memesBefore = Memes.CountOfMemes;
+                Memes.LoadMemesInfo();
+                int categoriesAfter = Memes.CountOfCategories;
+                int memesAfter = Memes.CountOfMemes;
+
+                var embed = new DiscordEmbedBuilder();
+                embed.AddField("Было", categoriesBefore + " категорий, содержащих " + memesBefore + " файлов");
+                embed.AddField("Стало", categoriesAfter + " категорий, содержащих " + memesAfter + " файлов");
+
+                await ctx.RespondAsync(embed: embed);
+            }
+            else
+            {
+                await ctx.RespondAsync("Ты моя мамочка?");
+            }
+        }
+
+        [Command("clearNicknames"),
+         Description("Берет всех пользователей без ролей, и проверяет допустимость их ников.")]
+        public async Task ClearNicknames(CommandContext ctx,
+            [Description("Должен ли бот также сбросить допустимые ники. [y/n]")]
+            string saveAcceptableNickanames = "y"
+        )
+        {
+            if (
+                ctx.User.Id == 131456507018477568 ||
+                ctx.Member.IsOwner)
+            {
+                var embedAboutStart = new DiscordEmbedBuilder
+                {
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = "Чистка ников инициирована.",
+                        IconUrl = ctx.Guild.CurrentMember.AvatarUrl
+                    }
+                };
+                embedAboutStart.AddField("Должен ли бот также сбросить допустимые ники. [y/n]",
+                    saveAcceptableNickanames);
+                await ctx.RespondAsync(embed: embedAboutStart);
+
+                var embedWithUserCounter = new DiscordEmbedBuilder
+                {
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = "Чистка ников начата.",
+                        IconUrl = ctx.Guild.CurrentMember.AvatarUrl
+                    }
+                };
+                embedWithUserCounter.AddField("Число участников на сервере.", ctx.Guild.MemberCount.ToString());
+
+                var members = ctx.Guild.Members.ToList();
+                var membersAvailableToInteractionList = new List<DiscordMember>();
+
+                foreach (var member in members)
+                {
+                    if (MemberExtensions.CanInteract(ctx.Guild.CurrentMember, member))
+                    {
+                        var roles = member.Roles.ToList();
+                        if (roles.Count == 0 && saveAcceptableNickanames == "y")
+                            membersAvailableToInteractionList.Add(member);
+                        if (saveAcceptableNickanames == "n") membersAvailableToInteractionList.Add(member);
+                    }
+                }
+
+                embedWithUserCounter.AddField("Число участников на сервере, к взаимодействию с которыми есть доступ.",
+                    membersAvailableToInteractionList.Count.ToString());
+
+                bool shouldBotSaveAcceptableNicknames = saveAcceptableNickanames == "y";
+                foreach (var member in membersAvailableToInteractionList)
+                {
+                    try
+                    {
+                        await ClearUserNickname(member, ctx.Guild, shouldBotSaveAcceptableNicknames);
+                    }
+                    catch (Exception e)
+                    {
+                        await ctx.RespondAsync(e.Message);
+                        Console.WriteLine(e);
+                        //throw;
+                    }
+                }
+
+                await ctx.RespondAsync(embed: embedWithUserCounter);
+            }
+            else
+            {
+                await ctx.RespondAsync("Это команду может использовать только владелец сервера.");
+            }
+        }
+
+        private async Task ClearUserNickname(DiscordMember member, DiscordGuild ctxGuild,
+            bool shouldBotSaveAcceptableNicknames)
+        {
+            string recommendedNickname = Nickname.FixNickname(member.Username, member.Discriminator);
+            bool isCurrentNicknameAcceptable =
+                Nickname.FixNickname(member.Username, member.Discriminator) == member.Username;
+
+            if (shouldBotSaveAcceptableNicknames && isCurrentNicknameAcceptable)
+            {
+            }
+            else
+            {
+                if (member.DisplayName != recommendedNickname)
+                {
+                    try
+                    {
+                        await member.ModifyAsync(recommendedNickname,
+                            reason:
+                            $"{member.Username} ({member.Id}) got under server cleaning nicknames. New nickname {recommendedNickname}.");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+
+                    var logRecord = new
+                    {
+                        botEvent = "Server cleaning display names.",
+                        newNickname = recommendedNickname,
+                        oldNickname = member.DisplayName,
+                        userDiscriminator = member.Discriminator,
+                        guild = ctxGuild.Name,
+                        userId = member.Id,
+                        guildId = ctxGuild.Id
+                    };
+                    var tmp = JsonConvert.SerializeObject(logRecord);
+                    Logger.SaveString(tmp);
+                }
+            }
+        }
+
+        /*
+        [Command("search"), Description("Ищет на вики.")]
+        public async Task Poll(CommandContext ctx, [Description("Что искать.")] string request)
+        {
+            //await ctx.RespondAsync(ctx.Message.Content);
+            //await ctx.RespondAsync(request);
+            //await ctx.RespondAsync(ctx.RawArgumentString);
+
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            Encoding utf8 = Encoding.GetEncoding("utf-8");
+            Encoding win1251 = Encoding.GetEncoding("windows-1251");
+            var win11251 = Encoding.GetEncoding(1252);
+
+
+            string uriString = "http://www.google.com/search";
+            string requestString = ctx.RawArgumentString;
+            WebClient webClient = new WebClient();
+
+            //webClient.Encoding = win1251;
+            NameValueCollection nameValueCollection = new NameValueCollection();
+            nameValueCollection.Add("q", requestString);
+            nameValueCollection.Add("as_sitesearch", "http://ru.warframe.wikia.com/");
+            nameValueCollection.Add("start", "0");
+            nameValueCollection.Add("num", "10");
+            //nameValueCollection.Add("output", "xml_no_dtd");
+            //http://www.google.com/search?start=0&num=10&q =где падает реактор орокин&as_sitesearch=http://ru.warframe.wikia.com/&output=xml_no_dtd&client=google-csbe
+            //http://www.google.com/search?start=0&num=10&q=где падает реактор орокин&as_sitesearch=http://ru.warframe.wikia.com/&client=google-csbe&output=xml_no_dtd
+            //    start = 0
+            //& num = 10
+            //            & q = red + sox
+            //                      & cr = countryCA
+            //                                 & client = google - csbe
+            //                                                & output = xml_no_dtd
+
+            //nameValueCollection.Add("ie", "UTF-8");
+            webClient.QueryString.Add(nameValueCollection);
+            string result = webClient.DownloadString(uriString);
+            //await ctx.RespondAsync(result.Remove(1999));
+
+
+            String CurrentPath = Directory.GetCurrentDirectory();
+            String PathWithName = CurrentPath + "\\textReq1.html";
+            StreamWriter w = new StreamWriter(PathWithName, false, win1251);
+
+            w.Write(result);
+            w.Close();
+
+
+            //string result = Win1251ToUTF8(webClient.DownloadString(uriString));
+
+            string pattern =
+                "<h3 class=\"r\"><a href=\".*\">(.*)<\\/a><\\/h3><div class=\"s\"><div class=\"kv\" style=\"margin-bottom:2px\"><cite>(.*)<\\/b><\\/cite>";
+            Regex regex = new Regex(pattern);
+            Console.WriteLine("Запрос:" + requestString + "\n");
+
+            if (regex.IsMatch(result))
+            {
+                await ctx.RespondAsync("Чет есть.\n" + requestString + "\n" + regex.Matches(result).Count);
+            }
+            else
+            {
+                await ctx.RespondAsync("Ничего.\n" + requestString + "\n" + regex.Matches(result).Count);
+            }
+
+            Console.WriteLine(pattern);
+            foreach (Match match in regex.Matches(result))
+            {
+                string title = match.Groups[1].Value;
+                string link = match.Groups[2].Value;
+
+                title = deleteB(title);
+                link = deleteB(link);
+                Console.WriteLine("->" + title + "\n" + link);
+            }
+
+            var embed = new DiscordEmbedBuilder
+            {
+                //Url = 
+                //Color = em.Message.Author is DiscordMember m ? m.Color : new DiscordColor(0xFF00FF),
+                ////Description = em.Message.Content,
+                //Author = new DiscordEmbedBuilder.EmbedAuthor
+                //{
+                //    Name = em.Message.Author is DiscordMember mx ? mx.DisplayName : em.Message.Author.Username,
+                //    IconUrl = em.Message.Author.AvatarUrl
+                //}
+            };
+
+            foreach (Match match in regex.Matches(result))
+            {
+                string title = match.Groups[1].Value;
+                string link = match.Groups[2].Value;
+
+                title = deleteB(title);
+                link = deleteB(link);
+                embed.AddField(title, link);
+            }
+
+
+            await ctx.RespondAsync(embed: embed);
+        }
+*/
+        private static string deleteB(string source)
+        {
+            source = source.Replace("<b>", "");
+            source = source.Replace("</b>", "");
+            return source;
+        }
+
+
+        [Command("users"), Description("Лист, установленных ников")]
+        public async Task ListOfUsers(CommandContext ctx
+            //,[Optional, Description("Пользователь, которому надо назначить ник..")]
+            //DiscordMember member
+        )
+        {
+            await ctx.TriggerTypingAsync();
+
+            if (ctx.Message.MentionedUsers.Count == 0)
+            {
+                bool first = true;
+
+                List<AssignedNickname> users = AssignedNicknames.GetAllUsersByGuildId(ctx.Guild.Id.ToString());
+
+                if (users.Count == 0)
+                {
+                    await ctx.RespondAsync("Пользователей не внесено.");
+                }
+                else
+                {
+                    string respond = "";
+
+                    foreach (var VARIABLE in users)
+                    {
+                        if (first)
+                        {
+                            first = false;
+                        }
+                        else
+                        {
+                            respond += "\n";
+                        }
+
+                        respond = VARIABLE.ToString() + "\n" + respond;
+                    }
+
+                    // first retrieve the interactivity module from the client
+                    var interactivity = ctx.Client.GetInteractivityModule();
+                    var respondPages = interactivity.GeneratePagesInEmbeds(respond);
+
+                    // send the paginator
+                    await interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, respondPages,
+                        TimeSpan.FromMinutes(5),
+                        TimeoutBehaviour.Delete);
+
+                    //ctx.RespondAsync(respond);
+                }
+            }
+            else
+            {
+                var member = ctx.Message.MentionedUsers[0];
+                AssignedNickname user =
+                    AssignedNicknames.GetUserByIdAndGuildId(member.Id.ToString(), ctx.Guild.Id.ToString());
+                if (user == null)
+                {
+                    await ctx.RespondAsync("Пользователь не найден в базе.");
+                }
+                else
+                {
+                    await ctx.RespondAsync(user.ToString());
+                }
+            }
+        }
+
+        [Command("sn"), Description("Назначает ник человеку, и следит за его сохранением.")]
+        public async Task SetNickname(CommandContext ctx,
+            [Required, Description("Пользователь, которому надо назначить ник..")]
+            DiscordMember member,
+            [Required, RemainingText, Description("Назначаемый ник.")]
+            string newNickname)
+        {
+            await ctx.TriggerTypingAsync();
+
+            try
+            {
+                string guildName = ctx.Guild.Name;
+                string guildId = ctx.Guild.Id.ToString();
+
+                var issuer = ctx.Member;
+
+                var targetId = ctx.Message.MentionedUsers[0].Id;
+                var targetMember = ctx.Guild.GetMemberAsync(targetId).Result;
+
+                bool haveRights = false;
+
+                if (MemberExtensions.CanInteract(issuer, targetMember))
+                {
+                    haveRights = true;
+                    //await ctx.RespondAsync("У тебя хватает прав.");
+                }
+                else
+                {
+                    await ctx.RespondAsync("У тебя не хватает прав.");
+                }
+
+                if (haveRights)
+                {
+                    await member.ModifyAsync(newNickname, reason: $"Changed by {ctx.User.Username} ({ctx.User.Id}).");
+
+                    try
+                    {
+                        DateTime date = DateTime.Now;
+                        //Console.WriteLine(date1);
+
+                        string orderer = ctx.User.Username + "#" + ctx.User.Discriminator;
+
+                        var embed = new DiscordEmbedBuilder
+                        {
+                            Title = "Установка ника",
+                            Description = "Инициатор " + orderer
+                        };
+
+                        string targetUser = ctx.Message.MentionedUsers[0].Username + "#" +
+                                            ctx.Message.MentionedUsers[0].Discriminator;
+
+                        string targetUserId = ctx.Message.MentionedUsers[0].Id.ToString();
+                        string dateOfApplying = date.ToString(CultureInfo.InvariantCulture);
+
+                        embed.AddField("Дата установки: ", dateOfApplying);
+
+                        embed.AddField("Устанавливаемый ник: ", newNickname);
+                        embed.AddField("Цель: ", targetUser);
+                        embed.AddField("ID цели: ", targetUserId);
+
+
+                        await ctx.RespondAsync(embed: embed);
+
+                        AssignedNicknames.AddUser(orderer, targetUser, targetUserId, dateOfApplying, newNickname,
+                            guildName, guildId);
+
+                        for (int i = 0; i < ctx.Guild.Roles.Count; i++)
+                        {
+                            if (ctx.Guild.Roles[i].Name == "Человек Неразумный")
+                            {
+                                await ctx.Member.GrantRoleAsync(ctx.Guild.Roles[i],
+                                    "Роль снята при использовании команды.");
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //e = e;
+                        if (e.Message == "Unauthorized: 403")
+                        {
+                            await ctx.RespondAsync(ctx.User.Mention + " у меня не хватает прав.");
+                        }
+                        else
+                        {
+                            if (e.HResult == -2147467261)
+                            {
+                                await ctx.RespondAsync(ctx.User.Mention +
+                                                       " ты не указал новый ник. Команду нужно использовать в формате: %команда% %упоминание пользователя% %ник%");
+                            }
+                            else
+                            {
+                                await ctx.RespondAsync("Что-то пошло не так. И это явно не было запланировано.\n" +
+                                                       e.Message);
+                            }
+                        }
+
+                        if (e.Message == "Value cannot be null.\\r\\nParameter name: value")
+                        {
+                            await ctx.RespondAsync(ctx.User.Mention + " у меня не хватает прав.");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.Message == "Unauthorized: 403")
+                {
+                    await ctx.RespondAsync(ctx.User.Mention + " у меня не хватает прав.");
+                }
+                else
+                {
+                    await ctx.RespondAsync(ctx.User.Mention +
+                                           ", что-то пошло не так на этапе проверки прав, и это явно не было запланировано.\n" +
+                                           e.Message);
+                }
+            }
+        }
+
+        [Command("dn"), Description("Удаляет упомянутого пользователя, из списка присвоенных ников.")]
+        public async Task DeleteAssignedNickname(CommandContext ctx
+            //,[Optional, Description("Пользователь, которому надо назначить ник..")]
+            //DiscordMember member
+        )
+        {
+            await ctx.TriggerTypingAsync();
+            if (ctx.Message.MentionedUsers.Count != 0)
+            {
+                try
+                {
+                    var issuer = ctx.Member;
+
+                    var targetId = ctx.Message.MentionedUsers[0].Id;
+                    var targetMember = ctx.Guild.GetMemberAsync(targetId).Result;
+
+                    bool haveRights = false;
+
+                    if (MemberExtensions.CanInteract(issuer, targetMember))
+                    {
+                        haveRights = true;
+                        //await ctx.RespondAsync("У тебя хватает прав.");
+                    }
+                    else
+                    {
+                        //haveRights = false;
+                        await ctx.RespondAsync("У тебя не хватает прав.");
+                    }
+
+                    if (haveRights)
+                    {
+                        if (AssignedNicknames.DeleteUserByIdAndGuildId(targetId.ToString(), ctx.Guild.Id.ToString()))
+                        {
+                            await ctx.RespondAsync("Успешно.");
+
+                            for (int i = 0; i < ctx.Guild.Roles.Count; i++)
+                            {
+                                if (ctx.Guild.Roles[i].Name == "Человек Неразумный")
+                                {
+                                    await ctx.Member.RevokeRoleAsync(ctx.Guild.Roles[i],
+                                        "Роль снята при использовании команды.");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            await ctx.RespondAsync("Возникла ошибка.");
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    await ctx.RespondAsync(ctx.User.Mention +
+                                           ", что-то пошло не так на этапе проверки прав, и это явно не было запланировано.");
+
+                    //// oh no, something failed, let the invoker now
+                    //var emoji = DiscordEmoji.FromName(ctx.Client, ":-1:");
+                    //await ctx.RespondAsync(emoji);
+                }
+            }
         }
     }
 }

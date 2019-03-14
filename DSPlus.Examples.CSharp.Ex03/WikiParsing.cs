@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using DSharpPlus.EventArgs;
 using HtmlAgilityPack;
 
@@ -35,7 +36,7 @@ namespace DSPlus.Examples
             var items = new List<SearchResult>();
             try
             {
-                var searchResults = htmlDoc.DocumentNode.SelectNodes("//li[@class=\"result\"]").ToList().GetRange(0, 4);
+                var searchResults = htmlDoc.DocumentNode.SelectNodes("//li[@class=\"result\"]").ToList().GetRange(0, 5);
                 for (int i = 0; i < searchResults.Count; i++)
                 {
                     var currentNode = searchResults[i];
@@ -47,7 +48,7 @@ namespace DSPlus.Examples
                     var headerNode = currentNodeRebuilt.DocumentNode.SelectSingleNode("//a[@class=\"result-link\"]");
                     foreach (var attr in headerNode.Attributes)
                         if (attr.Name == "href")
-                            link = attr.Value;
+                            link = HttpUtility.UrlDecode(attr.Value);
                     header = headerNode.InnerText;
                     items.Add(new SearchResult {header = header, link = link});
                 }

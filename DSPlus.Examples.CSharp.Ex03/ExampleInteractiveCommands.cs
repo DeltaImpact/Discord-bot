@@ -394,7 +394,7 @@ namespace DSPlus.Examples
                         IconUrl = ctx.Guild.CurrentMember.AvatarUrl
                     }
                 };
-                embedAboutStart.AddField("Должен ли бот также сбросить допустимые ники. [y/n]",
+                embedAboutStart.AddField("Должен ли бот также оставить допустимые ники. [y/n] [y by default]",
                     saveAcceptableNickanames);
                 await ctx.RespondAsync(embed: embedAboutStart);
 
@@ -415,22 +415,22 @@ namespace DSPlus.Examples
                 {
                     if (MemberExtensions.CanInteract(ctx.Guild.CurrentMember, member))
                     {
-                        var roles = member.Roles.ToList();
-                        if (roles.Count == 0 && saveAcceptableNickanames == "y")
-                            membersAvailableToInteractionList.Add(member);
-                        if (saveAcceptableNickanames == "n") membersAvailableToInteractionList.Add(member);
+                        membersAvailableToInteractionList.Add(member);
+                        //var roles = member.Roles.ToList();
+                        //if (roles.Count == 0 && saveAcceptableNickanames == "y")
+                        //    membersAvailableToInteractionList.Add(member);
+                        //if (saveAcceptableNickanames == "n") membersAvailableToInteractionList.Add(member);
                     }
                 }
 
                 embedWithUserCounter.AddField("Число участников на сервере, к взаимодействию с которыми есть доступ.",
                     membersAvailableToInteractionList.Count.ToString());
 
-                bool shouldBotSaveAcceptableNicknames = saveAcceptableNickanames == "y";
                 foreach (var member in membersAvailableToInteractionList)
                 {
                     try
                     {
-                        await ClearUserNickname(member, ctx.Guild, shouldBotSaveAcceptableNicknames);
+                        await ClearUserNickname(member, ctx.Guild, saveAcceptableNickanames == "y");
                     }
                     catch (Exception e)
                     {
@@ -451,43 +451,51 @@ namespace DSPlus.Examples
         private async Task ClearUserNickname(DiscordMember member, DiscordGuild ctxGuild,
             bool shouldBotSaveAcceptableNicknames)
         {
-            string recommendedNickname = Nickname.FixNickname(member.Username, member.Discriminator);
-            bool isCurrentNicknameAcceptable =
-                Nickname.FixNickname(member.Username, member.Discriminator) == member.Username;
+            string cleanedCurrentDisplayName = Nickname.FixNickname(member.DisplayName, member.Discriminator);
+            string cleanedCurrentUsername = Nickname.FixNickname(member.Username, member.Discriminator);
 
-            if (shouldBotSaveAcceptableNicknames && isCurrentNicknameAcceptable)
+            if (shouldBotSaveAcceptableNicknames) // Если бот не должен трогать допустимые ники
             {
-            }
-            else
-            {
-                if (member.DisplayName != recommendedNickname)
+                if (cleanedCurrentDisplayName != member.DisplayName) //И текущий не допустим
                 {
-                    try
-                    {
-                        await member.ModifyAsync(recommendedNickname,
-                            reason:
-                            $"{member.Username} ({member.Id}) got under server cleaning nicknames. New nickname {recommendedNickname}.");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
-
-                    var logRecord = new
-                    {
-                        botEvent = "Server cleaning display names.",
-                        newNickname = recommendedNickname,
-                        oldNickname = member.DisplayName,
-                        userDiscriminator = member.Discriminator,
-                        guild = ctxGuild.Name,
-                        userId = member.Id,
-                        guildId = ctxGuild.Id
-                    };
-                    var tmp = JsonConvert.SerializeObject(logRecord);
-                    Logger.SaveString(tmp);
+                    await UpdateUser(member, cleanedCurrentDisplayName, ctxGuild); //Сменить ник
                 }
             }
+            else // Если бот должен трогать допустимые ники
+            {
+                if (member.DisplayName != cleanedCurrentUsername) // И подчищенный юзернейм отличаетс отличается от ника на севере.
+                {
+                    await UpdateUser(member, cleanedCurrentUsername, ctxGuild); //Сменить ник
+                }
+            }
+        }
+
+        private async Task UpdateUser(DiscordMember member, string newDisplayName, DiscordGuild ctxGuild)
+        {
+            try
+            {
+                await member.ModifyAsync(newDisplayName,
+                    reason:
+                    $"{member.Username} ({member.Id}) got under server cleaning nicknames. New nickname {newDisplayName}.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            var logRecord = new
+            {
+                botEvent = "Server cleaning display names.",
+                newDisplayName = newDisplayName,
+                oldDisplayName = member.DisplayName,
+                userDiscriminator = member.Discriminator,
+                guild = ctxGuild.Name,
+                userId = member.Id,
+                guildId = ctxGuild.Id
+            };
+            var tmp = JsonConvert.SerializeObject(logRecord);
+            Logger.SaveString(tmp);
         }
 
         /*

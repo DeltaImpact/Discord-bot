@@ -190,63 +190,63 @@ namespace DSPlus.Examples
                 $"Joined user: {e.Member.Username}#{e.Member.Discriminator}({e.Member.Id})",
                 DateTime.Now);
 
-            AssignedNickname user =
-                AssignedNicknames.GetUserByIdAndGuildId(e.Member.Id.ToString(), e.Guild.Id.ToString());
-            if (user != null)
+            //AssignedNickname user =
+            //    AssignedNicknames.GetUserByIdAndGuildId(e.Member.Id.ToString(), e.Guild.Id.ToString());
+            //if (user != null)
+            //{
+            //    try
+            //    {
+            //        await e.Member.ModifyAsync(user.NewNickname,
+            //            reason:
+            //            $"{e.Member.Username} ({e.Member.Id}) rejoin server with assigned nickname {user.NewNickname}.");
+
+            //        var logRecord = new
+            //        {
+            //            botEvent = "rejoin server with assigned nickname",
+            //            newNickname = user.NewNickname,
+            //            oldNickname = e.Member.DisplayName,
+            //            userDiscriminator = e.Member.Discriminator,
+            //            guild = e.Guild.Name,
+            //            userId = e.Member.Id,
+            //            guildId = e.Guild.Id
+            //        };
+            //        var tmp = JsonConvert.SerializeObject(logRecord);
+            //        Logger.SaveString(tmp);
+            //    }
+            //    catch (Exception exception)
+            //    {
+            //        var position = new {botEvent = "exception", exception};
+            //        var tmp = JsonConvert.SerializeObject(position);
+            //        Logger.SaveString(tmp);
+
+            //        Console.WriteLine(exception);
+            //        //throw;
+            //    }
+            //}
+            //else
+            //{
+            string cleanedCurrentDisplayName = Nickname.FixNickname(e.Member.DisplayName, e.Member.Discriminator);
+
+            if (e.Member.DisplayName != cleanedCurrentDisplayName)
             {
-                try
-                {
-                    await e.Member.ModifyAsync(user.NewNickname,
-                        reason:
-                        $"{e.Member.Username} ({e.Member.Id}) rejoin server with assigned nickname {user.NewNickname}.");
+                await e.Member.ModifyAsync(cleanedCurrentDisplayName,
+                    reason:
+                    $"{e.Member.DisplayName} ({e.Member.Id}) joined having unacceptable display name. New nickname {cleanedCurrentDisplayName}.");
 
-                    var logRecord = new
-                    {
-                        botEvent = "rejoin server with assigned nickname",
-                        newNickname = user.NewNickname,
-                        oldNickname = e.Member.DisplayName,
-                        userDiscriminator = e.Member.Discriminator,
-                        guild = e.Guild.Name,
-                        userId = e.Member.Id,
-                        guildId = e.Guild.Id
-                    };
-                    var tmp = JsonConvert.SerializeObject(logRecord);
-                    Logger.SaveString(tmp);
-                }
-                catch (Exception exception)
+                var logRecord = new
                 {
-                    var position = new {botEvent = "exception", exception};
-                    var tmp = JsonConvert.SerializeObject(position);
-                    Logger.SaveString(tmp);
-
-                    Console.WriteLine(exception);
-                    //throw;
-                }
+                    botEvent = "guild member join event change display name",
+                    newDisplayName = cleanedCurrentDisplayName,
+                    oldDisplayName = e.Member.DisplayName,
+                    userDiscriminator = e.Member.Discriminator,
+                    guild = e.Guild.Name,
+                    userId = e.Member.Id,
+                    guildId = e.Guild.Id
+                };
+                var tmp = JsonConvert.SerializeObject(logRecord);
+                Logger.SaveString(tmp);
             }
-            else
-            {
-                string newNickname = Nickname.FixNickname(e.Member.DisplayName, e.Member.Discriminator);
-
-                if (e.Member.DisplayName != Nickname.FixNickname(newNickname, e.Member.Discriminator))
-                {
-                    await e.Member.ModifyAsync(newNickname,
-                        reason:
-                        $"{e.Member.Username} ({e.Member.Id}) joined server with incorrect nickname. New nickname {newNickname}.");
-
-                    var logRecord = new
-                    {
-                        botEvent = "join server with incorrect nickname",
-                        newNickname = newNickname,
-                        oldNickname = e.Member.DisplayName,
-                        userDiscriminator = e.Member.Discriminator,
-                        guild = e.Guild.Name,
-                        userId = e.Member.Id,
-                        guildId = e.Guild.Id
-                    };
-                    var tmp = JsonConvert.SerializeObject(logRecord);
-                    Logger.SaveString(tmp);
-                }
-            }
+            //}
 
             return Task.CompletedTask;
         }
@@ -257,64 +257,64 @@ namespace DSPlus.Examples
                 $"Updated user: {e.Member.Username}#{e.Member.Discriminator}({e.Member.Id})",
                 DateTime.Now);
 
-            AssignedNickname user =
-                AssignedNicknames.GetUserByIdAndGuildId(e.Member.Id.ToString(), e.Guild.Id.ToString());
+            //AssignedNickname user =
+            //    AssignedNicknames.GetUserByIdAndGuildId(e.Member.Id.ToString(), e.Guild.Id.ToString());
 
-            if (user != null)
+            //if (user != null)
+            //{
+            //try
+            //{
+            //    await e.Member.ModifyAsync(user.NewNickname,
+            //        reason:
+            //        $"{e.Member.Username} ({e.Member.Id}) tried to change assigned nickname {user.NewNickname}.");
+
+            //    var logRecord = new
+            //    {
+            //        botEvent = "tried to change assigned nickname",
+            //        newNickname = user.NewNickname,
+            //        oldNickname = e.Member.DisplayName,
+            //        userDiscriminator = e.Member.Discriminator,
+            //        guild = e.Guild.Name,
+            //        userId = e.Member.Id,
+            //        guildId = e.Guild.Id
+            //    };
+            //    var tmp = JsonConvert.SerializeObject(logRecord);
+            //    Logger.SaveString(tmp);
+            //}
+            //catch (Exception exception)
+            //{
+            //    var position = new {botEvent = "exception", exception};
+            //    var tmp = JsonConvert.SerializeObject(position);
+            //    Logger.SaveString(tmp);
+
+            //    Console.WriteLine(exception);
+            //    //throw;
+            //}
+            //}
+            //else
+            //{
+            string cleanedCurrentDisplayName = Nickname.FixNickname(e.Member.DisplayName, e.Member.Discriminator);
+
+            if (e.Member.DisplayName != cleanedCurrentDisplayName)
             {
-                try
-                {
-                    await e.Member.ModifyAsync(user.NewNickname,
-                        reason:
-                        $"{e.Member.Username} ({e.Member.Id}) tried to change assigned nickname {user.NewNickname}.");
+                await e.Member.ModifyAsync(cleanedCurrentDisplayName,
+                    reason:
+                    $"{e.Member.DisplayName} ({e.Member.Id}) updated profile having unacceptable display name. New nickname {cleanedCurrentDisplayName}.");
 
-                    var logRecord = new
-                    {
-                        botEvent = "tried to change assigned nickname",
-                        newNickname = user.NewNickname,
-                        oldNickname = e.Member.DisplayName,
-                        userDiscriminator = e.Member.Discriminator,
-                        guild = e.Guild.Name,
-                        userId = e.Member.Id,
-                        guildId = e.Guild.Id
-                    };
-                    var tmp = JsonConvert.SerializeObject(logRecord);
-                    Logger.SaveString(tmp);
-                }
-                catch (Exception exception)
+                var logRecord = new
                 {
-                    var position = new {botEvent = "exception", exception};
-                    var tmp = JsonConvert.SerializeObject(position);
-                    Logger.SaveString(tmp);
-
-                    Console.WriteLine(exception);
-                    //throw;
-                }
+                    botEvent = "guild member update event change display name",
+                    newDisplayName = cleanedCurrentDisplayName,
+                    oldDisplayName = e.Member.DisplayName,
+                    userDiscriminator = e.Member.Discriminator,
+                    guild = e.Guild.Name,
+                    userId = e.Member.Id,
+                    guildId = e.Guild.Id
+                };
+                var tmp = JsonConvert.SerializeObject(logRecord);
+                Logger.SaveString(tmp);
             }
-            else
-            {
-                string newNickname = Nickname.FixNickname(e.Member.DisplayName, e.Member.Discriminator);
-
-                if (e.Member.DisplayName != Nickname.FixNickname(newNickname, e.Member.Discriminator))
-                {
-                    await e.Member.ModifyAsync(newNickname,
-                        reason:
-                        $"{e.Member.Username} ({e.Member.Id}) tried to change nickname to inadmissible. New nickname {newNickname}.");
-
-                    var logRecord = new
-                    {
-                        botEvent = "tried to change nickname to inadmissible",
-                        newNickname = user.NewNickname,
-                        oldNickname = e.Member.DisplayName,
-                        userDiscriminator = e.Member.Discriminator,
-                        guild = e.Guild.Name,
-                        userId = e.Member.Id,
-                        guildId = e.Guild.Id
-                    };
-                    var tmp = JsonConvert.SerializeObject(logRecord);
-                    Logger.SaveString(tmp);
-                }
-            }
+            //}
 
             return Task.CompletedTask;
         }
